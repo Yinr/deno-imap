@@ -292,6 +292,21 @@ export function store(
 }
 
 /**
+ * Generates an ID command
+ * @param idRecord Record containing ID (client) information
+ * @returns ID command string
+ */
+export function id(
+  idRecord: Record<string, string>,
+): string {
+  const idParts = Object.entries(idRecord)
+    .map(([key, value]) => `"${[key, value].map(str => str.replace(/\\/g, '\\\\').replace(/"/g, '\\"')).join('" "')}"`)
+    .join(' ');
+
+  return `ID (${idParts})`;
+}
+
+/**
  * Generates a COPY command
  * @param sequence Message sequence set
  * @param mailbox Destination mailbox
