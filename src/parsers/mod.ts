@@ -7,6 +7,7 @@
 
 import { ImapParseError } from '../errors.ts';
 import type { ImapAddress, ImapEnvelope, ImapMailbox } from '../types/mod.ts';
+import { decodeHeader } from '../utils/mod.ts';
 import { parseBodyStructure } from './bodystructure.ts';
 
 // Export bodystructure parser functions directly
@@ -303,10 +304,10 @@ export function parseEnvelope(data: string): ImapEnvelope {
       const cleanString = (str: string): string | undefined => {
         if (str === 'NIL') return undefined;
         // Remove surrounding quotes if present
-        if (str.startsWith('"') && str.endsWith('"')) {
-          return str.substring(1, str.length - 1);
-        }
-        return str;
+        const cleaned = str.startsWith('"') && str.endsWith('"')
+          ? str.substring(1, str.length - 1)
+          : str;
+        return decodeHeader(cleaned);
       };
 
       envelope.date = cleanString(parts[0]);

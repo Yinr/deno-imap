@@ -375,3 +375,33 @@ export async function getMailboxHierarchy(
 
   return hierarchy;
 }
+
+/**
+ * Decodes an RFC 2047 encoded string
+ * @param encoded Encoded header string
+ * @returns Decoded string
+ */
+export function decodeHeader(encoded: string): string {
+  const RFC2047_REGEX = /=\?([a-zA-Z0-9\-_]+)\?([QBqb])\?([^?]+)\?=/g;
+  
+  return encoded.replace(RFC2047_REGEX, (match, charset: string, encoding: string, text: string) => {
+    try {
+      let decoded = text;
+      if (encoding.toUpperCase() === 'Q') { // Quoted-Printable
+        decoded = decoded.replace(/_/g, ' ')
+          .replace(/=([0-9A-F]{2})/g, (_, hex) => 
+            String.fromCharCode(parseInt(hex, 16))
+          );
+      } else if (encoding.toUpperCase() === 'B') { // Base64
+        decoded = atob(decoded);
+      }
+      
+      // 使用 TextDecoder 处理字符集转换
+      const decoder = new TextDecoder(charset);
+      return decoder.decode(Uint8Array.from(decoded, c => c.charCodeAt(0)));
+    } catch (error) {
+      console.warn('Header decode failed:', error);
+      return match; // 返回原始字符串如果解码失败
+    }
+  });
+}
