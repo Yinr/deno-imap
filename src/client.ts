@@ -280,6 +280,16 @@ export class ImapClient {
   }
 
   /**
+   * Sends an ID (client) infomation to the server
+   * @param idRecord Record of ID (client) infomation
+   */
+  async id(idRecord: Record<string, string>): Promise<void> {
+    await this.executeCommand(
+      commands.id(idRecord)
+    )
+  }
+
+  /**
    * Lists mailboxes
    * @param reference Reference name (usually empty string)
    * @param mailbox Mailbox name pattern
